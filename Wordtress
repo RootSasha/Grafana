@@ -25,4 +25,16 @@ cp * -R /var/www/html/
 cd /var/www/html/
 chown -R www-data:www-data /var/www/html/
 
+
+
+Yurii Levchu +++
+
+
+
+test 
+
+
+test
+
+
 echo "Finish!!!!!!!!"
