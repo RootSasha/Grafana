@@ -5,7 +5,7 @@ echo "http://your_address/phpmyadmin"
 
 echo "______basephpmyadmin________"
 
-echo "CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';"
+echo "CREATE USER 'oksesaneka22'@'localhost' IDENTIFIED BY 'password';"
 echo "GRANT ALL PRIVILEGES ON * . * TO 'newuser'@'localhost';"
 echo "FLUSH PRIVILEGES;"
 echo "exit"
