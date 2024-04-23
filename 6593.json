@@ -1,0 +1,21 @@
+{
+  "dashboard": {
+    "id": 6593,
+    "title": "Windows Dashboard",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Memory Usage",
+        "datasource": "prometheus",
+        "targets": [
+          {
+            "expr": "100 - ((node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100)"
+          }
+        ]
+      }
+      // Додайте інші панелі та налаштування за потреби
+    ],
+    "overwrite": true
+  },
+  "overwrite": true
+}

@@ -1,0 +1,21 @@
+{
+  "dashboard": {
+    "id": 14857,
+    "title": "Linux Dashboard",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "CPU Usage",
+        "datasource": "prometheus",
+        "targets": [
+          {
+            "expr": "100 - (avg by(instance)(irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)"
+          }
+        ]
+      }
+      // Додайте інші панелі та налаштування за потреби
+    ],
+    "overwrite": true
+  },
+  "overwrite": true
+}
