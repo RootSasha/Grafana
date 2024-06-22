@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitoring-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring-stack
+  template:
+    metadata:
+      labels:
+        app: monitoring-stack
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "your_admin_password"
+          
+      - name: prometheus
+        image: prom/prometheus:latest
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-storage
+          mountPath: /prometheus
+          
+      - name: node-exporter
+        image: prom/node-exporter:latest
+        ports:
+        - containerPort: 9100
+      volumes:
+      - name: prometheus-storage
+        emptyDir: {}
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-stack-grafana
+spec:
+  selector:
+    app: monitoring-stack
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: NodePort
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-stack-prometheus
+spec:
+  selector:
+    app: monitoring-stack
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+  type: NodePort
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-stack-node-exporter
+spec:
+  selector:
+    app: monitoring-stack
+  ports:
+    - protocol: TCP
+      port: 9100
+      targetPort: 9100
+  type: NodePort
