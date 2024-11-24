@@ -7,12 +7,16 @@ pipeline {
     }
 
     stages {
-        stage('Setup Environment') {
+        stage('Verify Docker Installation') {
             steps {
                 script {
-                    echo 'Updating system packages...'
+                    echo 'Checking Docker installation...'
                     sh '''
-                    sudo apt-get update && sudo apt-get install -y docker.io
+                    if ! command -v docker &> /dev/null
+                    then
+                        echo "Docker is not installed. Please install Docker."
+                        exit 1
+                    fi
                     '''
                 }
             }
@@ -21,7 +25,7 @@ pipeline {
         stage('Initialize Docker Swarm') {
             steps {
                 script {
-                    echo 'Initializing Docker Swarm...'
+                    echo 'Initializing Docker Swarm (if not already active)...'
                     sh '''
                     if ! docker info | grep -q "Swarm: active"; then
                         docker swarm init || true
@@ -35,6 +39,7 @@ pipeline {
             steps {
                 script {
                     echo "Deploying stack: ${STACK_NAME}..."
+                    // Тут запускаються контейнери для Grafana, Prometheus, Node Exporter, cAdvisor
                     sh "docker stack deploy -c ${DOCKER_COMPOSE_FILE} ${STACK_NAME}"
                 }
             }
