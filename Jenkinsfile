@@ -3,14 +3,14 @@ pipeline {
 
     environment {
         DOCKER_COMPOSE = '/usr/local/bin/docker-compose' // шлях до docker-compose, змінюйте залежно від вашого середовища
-        DOCKER_IMAGE_TAG = 'latest'  // Можна змінити на версію, яку ви хочете використовувати
+        DOCKER_IMAGE_TAG = 'monitoring'  // Можна змінити на версію, яку ви хочете використовувати
     }
 
     stages {
         stage('Checkout') {
             steps {
                 // Клонування репозиторію
-                git 'https://your-repository-url.git'
+                git 'git@github.com:RootSasha/Grafana.git'
             }
         }
 
