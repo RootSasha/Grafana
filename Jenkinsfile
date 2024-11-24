@@ -2,68 +2,84 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_COMPOSE_FILE = "docker-compose.yml"
-        STACK_NAME = "monitoring"
+        DOCKER_COMPOSE = '/usr/local/bin/docker-compose' // шлях до docker-compose, змінюйте залежно від вашого середовища
+        DOCKER_IMAGE_TAG = 'latest'  // Можна змінити на версію, яку ви хочете використовувати
     }
 
     stages {
-        stage('Verify Docker Installation') {
+        stage('Checkout') {
+            steps {
+                // Клонування репозиторію
+                git 'https://your-repository-url.git'
+            }
+        }
+
+        stage('Prepare Environment') {
             steps {
                 script {
-                    echo 'Checking Docker installation...'
-                    sh '''
-                    if ! command -v docker &> /dev/null
-                    then
-                        echo "Docker is not installed. Please install Docker."
-                        exit 1
-                    fi
-                    '''
+                    // Перевірка чи встановлений Docker та Docker Compose
+                    sh 'docker --version'
+                    sh 'docker-compose --version'
                 }
             }
         }
 
-        stage('Initialize Docker Swarm') {
+        stage('Start Containers') {
             steps {
                 script {
-                    echo 'Initializing Docker Swarm (if not already active)...'
-                    sh '''
-                    if ! docker info | grep -q "Swarm: active"; then
-                        docker swarm init || true
-                    fi
-                    '''
+                    // Запуск контейнерів за допомогою Docker Compose
+                    sh """
+                    docker-compose -f docker-compose.yml up -d
+                    """
                 }
             }
         }
 
-        stage('Deploy Docker Stack') {
+        stage('Wait for Services') {
             steps {
                 script {
-                    echo "Deploying stack: ${STACK_NAME}..."
-                    // Тут запускаються контейнери для Grafana, Prometheus, Node Exporter, cAdvisor
-                    sh "docker stack deploy -c ${DOCKER_COMPOSE_FILE} ${STACK_NAME}"
+                    // Зачекаємо, поки сервіси запустяться
+                    sleep(time: 30, unit: 'SECONDS')
                 }
             }
         }
 
-        stage('Verify Services') {
+        stage('Test Containers') {
             steps {
                 script {
-                    echo 'Checking services status...'
-                    sh '''
-                    sleep 20
-                    docker service ls
-                    '''
+                    // Перевірка чи працюють контейнери (наприклад, через доступність портів)
+                    sh 'curl -s http://localhost:3000' // перевірка Grafana
+                    sh 'curl -s http://localhost:9090' // перевірка Prometheus
+                    sh 'curl -s http://localhost:9093' // перевірка Alertmanager
+                    sh 'curl -s http://localhost:9100' // перевірка Node Exporter
+                    sh 'curl -s http://localhost:8080' // перевірка cAdvisor
                 }
             }
         }
+
+        stage('Stop Containers') {
+            steps {
+                script {
+                    // Зупинка та видалення контейнерів після завершення
+                    sh """
+                    docker-compose -f docker-compose.yml down
+                    """
+                }
+            }
+        }
+
     }
 
     post {
+        always {
+            // Очищення робочого простору після виконання
+            cleanWs()
+        }
         success {
-            echo "Monitoring stack successfully deployed!"
+            echo 'Контейнери успішно запущені, протестовані та зупинені.'
         }
         failure {
-            echo "Deployment failed. Please check logs."
+            echo 'Сталася помилка під час виконання.'
         }
     }
 }
