@@ -1,16 +1,23 @@
 #!/bin/bash
 
-apt update
+# Оновлення системи
+echo "Updating system packages..."
+apt update && apt upgrade -y
 
+# Встановлення Docker
+echo "Installing Docker..."
 apt install docker.io -y
 
+# Ініціалізація Docker Swarm
+echo "Initializing Docker Swarm..."
 docker swarm init
 
+# Деплой стеку
+echo "Deploying monitoring stack..."
 docker stack deploy -c docker-compose.yml monitoring
 
-GRAFANA_USER="admin"
-GRAFANA_PASSWORD="admin"
-GRAFANA_API_URL="http://localhost:3000/api/dashboards/db"
+# Очікування запуску
+echo "Waiting for services to start..."
+sleep 20
 
-
-echo "Dashboards imported."
+echo "Monitoring stack deployed successfully!"
